@@ -1,0 +1,64 @@
+SELECT Round(STATUS2.Prec,1) AS PRECIO, STATUS2.ABC, STATUS2.Texto, (iif(isnull(STATUS2.TotZub),0,STATUS2.TotZub)+iif(isnull(STATUS2.TotRes),0,STATUS2.TotRes)) AS RZ, (IIf(isnull(Status2.TotZor),0,STATUS2.TotZor)+IIf(isnull(STATUS2.TotPed),0,STATUS2.TotPed)) AS SP, STATUS2.Disp AS Dis, IIf(PtoPed_.Dias60<> 0,ROUND(STATUS2.Disp/(PtoPed_.Dias60/2),1),0) AS COBA, IIf(isnull(STATUS2.[Ult3_.U3]) Or STATUS2.[Ult3_.U3]=0,"",round(STATUS2.Disp/(STATUS2.[Ult3_.U3]/3),1)) AS COB3, IIf(isnull(STATUS2.[Ult12_.U12]) Or STATUS2.[Ult12_.U12]=0,"",round(STATUS2.Disp/(STATUS2.[Ult12_.U12]/12),1)) AS COB12, iif(STATUS2.[Val#redondeo]<>0 and STATUS2.[Val#redondeo]<>1,int(
+Round(
+IIf(STATUS2.I      ='I'  And (PtoPed_.Dias180-STATUS2.Disp) >0,TamLoteFijo_.SiEsImp,
+IIf(STATUS2.ABC='A' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsA-STATUS2.Disp,
+IIf(STATUS2.ABC='B' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsB-STATUS2.Disp,
+IIf(STATUS2.ABC='C' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsC-STATUS2.Disp,
+IIf(STATUS2.ABC='D' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsImp-STATUS2.Disp))))) 
+,1) 
+/STATUS2.[Val#redondeo])*STATUS2.[Val#redondeo],
+Round(
+IIf(STATUS2.I      ='I'  And (PtoPed_.Dias180-STATUS2.Disp) >0,TamLoteFijo_.SiEsImp,
+IIf(STATUS2.ABC='A' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsA-STATUS2.Disp,
+IIf(STATUS2.ABC='B' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsB-STATUS2.Disp,
+IIf(STATUS2.ABC='C' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsC-STATUS2.Disp,
+IIf(STATUS2.ABC='D' And (PtoPed_.Dias60-STATUS2.Disp)   >0,TamLoteFijo_.SiEsImp-STATUS2.Disp))))) 
+,1) 
+) AS SugA, iif(STATUS2.[Val#redondeo]<>0 and STATUS2.[Val#redondeo]<>1,int(
+IIf(IsNull(STATUS2.[Ult3_.U3]) Or STATUS2.[Ult3_.U3]=0,0,Round(
+IIf(STATUS2.ABC='A' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*2,
+IIf(STATUS2.ABC='B' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*3,
+IIf(STATUS2.ABC='C' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*6,
+IIf(STATUS2.ABC='D' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*12,
+IIf(STATUS2.Disp<0,STATUS2.Disp*(-1),0)))))
+,1)) 
+/STATUS2.[Val#redondeo])*STATUS2.[Val#redondeo],
+IIf(IsNull(STATUS2.[Ult3_.U3]) Or STATUS2.[Ult3_.U3]=0,0,Round(
+IIf(STATUS2.ABC='A' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*2,
+IIf(STATUS2.ABC='B' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*3,
+IIf(STATUS2.ABC='C' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*6,
+IIf(STATUS2.ABC='D' And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0,STATUS2.[Ult3_.U3]/3*12,
+IIf(STATUS2.Disp<0,STATUS2.Disp*(-1),0)))))
+,1)) 
+) AS SUG3, iif(STATUS2.[Val#redondeo]<>0 and STATUS2.[Val#redondeo]<>1,int(
+IIf(IsNull(STATUS2.[Ult12_.U12]) Or STATUS2.[Ult12_.U12]=0,0,Round(
+IIf(STATUS2.ABC='A' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*2,
+IIf(STATUS2.ABC='B' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*3,
+IIf(STATUS2.ABC='C' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*6,
+IIf(STATUS2.ABC='D' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12],
+IIf(STATUS2.Disp<0,STATUS2.Disp*(-1),0))))),1)) 
+/STATUS2.[Val#redondeo])*STATUS2.[Val#redondeo],
+IIf(IsNull(STATUS2.[Ult12_.U12]) Or STATUS2.[Ult12_.U12]=0,0,Round(
+IIf(STATUS2.ABC='A' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*2,
+IIf(STATUS2.ABC='B' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*3,
+IIf(STATUS2.ABC='C' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12]/12*6,
+IIf(STATUS2.ABC='D' And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0,STATUS2.[Ult12_.U12],
+IIf(STATUS2.Disp<0,STATUS2.Disp*(-1),0))))),1)) 
+) AS SUG12, iif(STATUS2.UM="C/U","",STATUS2.UM) AS UM, STATUS2.F, STATUS2.Mat, " " AS Prop, STATUS2.C, STATUS2.Alm, iif(STATUS2.CaP<>"V1",STATUS2.CaP,"") AS CaP, IIf(sMRP.Rep=0,"",sMRP.Rep) AS MRP, STATUS2.Z19, STATUS2.M19, STATUS2.Z18, STATUS2.M18, STATUS2.Z17, STATUS2.M17, STATUS2.R1819, STATUS2.M1819, STATUS2.U3, STATUS2.M3, STATUS2.U12, STATUS2.M12, STATUS2.[2019], STATUS2.[2018], STATUS2.[2017], STATUS2.[2016], PREVISION1819.Prev1819 AS Prv, iif(STATUS2.Creado>#11/01/2018#, STATUS2.Creado,"") AS Creado, iif(STATUS2.CRI="Sí",STATUS2.CRI,"") AS Cri, iif(STATUS2.I="I",STATUS2.I,"") AS I, STATUS2.GCp, STATUS2.[Val#redondeo], Status2.Contrato, Status2.PosCon, Status2.GrpCon, Status2.CenCon, Status2.AlmCon, Status2.FechFiCon, Status2.CantPenCon
+FROM (((STATUS2 LEFT JOIN PtoPed_ ON STATUS2.Mat = PtoPed_.Material) LEFT JOIN TamLoteFijo_ ON STATUS2.Mat = TamLoteFijo_.Material) LEFT JOIN sMRP ON STATUS2.Mat = sMRP.Material) LEFT JOIN PREVISION1819 ON STATUS2.Mat =PREVISION1819.material
+WHERE (
+((STATUS2.ABC='A' or STATUS2.ABC='B' or STATUS2.ABC='C' or STATUS2.ABC='D'or STATUS2.ABC='V') And (PtoPed_.Dias60-STATUS2.Disp)>0 AND ((STATUS2.CaP)='V1')) OR     
+  
+(NOT IsNull(STATUS2.[Ult12_.U12]) AND NOT STATUS2.[Ult12_.U12]=0 AND (STATUS2.ABC='A' or STATUS2.ABC='B' or STATUS2.ABC='C' or STATUS2.ABC='D'or STATUS2.ABC='V') And STATUS2.M12>6 And STATUS2.[Ult12_.U12]/12*2-STATUS2.Disp>0 AND ((STATUS2.CaP)='V1')) OR 
+
+(NOT IsNull(STATUS2.[Ult3_.U3]) AND NOT STATUS2.[Ult3_.U3]=0 AND (STATUS2.ABC='A' or STATUS2.ABC='B' or STATUS2.ABC='C' or STATUS2.ABC='D'or STATUS2.ABC='V') 
+And STATUS2.M3>2 And STATUS2.[Ult3_.U3]/3*2-STATUS2.Disp>0 AND ((STATUS2.CaP)='V1')) OR 
+
+
+
+(STATUS2.Disp<0)  OR   
+(STATUS2.I='I' And (PtoPed_.Dias180-STATUS2.Disp)>0)  OR        
+(((STATUS2.CaP)='V1') AND ((STATUS2.Disp)<[STATUS2].[Pto]) AND ((STATUS2.Creado)>#11/01/2018#)) OR   STATUS2.Mat = sMRP.Material and sMRP.Rep >0
+)
+AND STATUS2.JD <> 'Si'
+ORDER BY STATUS2.F, STATUS2.Mat;
