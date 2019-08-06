@@ -1,0 +1,3 @@
+SELECT Reservas.Material, sum(Reservas.[Cantidad diferencia]) AS TotRes
+FROM Reservas
+GROUP BY Reservas.Material;
