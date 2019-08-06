@@ -1,0 +1,5 @@
+TRANSFORM Sum(ConsumoMweek.Salida) AS SumaDeSalida
+SELECT ConsumoMweek.Material, Sum(ConsumoMweek.Salida) AS [Total de Salida]
+FROM ConsumoMweek
+GROUP BY ConsumoMweek.Material
+PIVOT ConsumoMweek.Mes;
