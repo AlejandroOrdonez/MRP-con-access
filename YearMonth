@@ -1,0 +1,2 @@
+SELECT year(ConsumosMicro.Fecha) & IIf(month(ConsumosMicro.Fecha)<10,"0" & month(ConsumosMicro.Fecha),month(ConsumosMicro.Fecha)) AS Mes, ConsumosMicro.Fecha, ConsumosMicro.Material, ConsumosMicro.mov, ConsumosMicro.Alm, ConsumosMicro.CeRec, ConsumosMicro.Salida
+FROM ConsumosMicro;
