@@ -1,0 +1,28 @@
+SELECT Right(Left(Materiales.[Jquía#productos],5),2) AS F, 
+Materiales.Material AS Mat, Materiales.UMB AS UM, Materiales.[Libre utiliz#] AS Stock, 
+Materiales.[Punto pedido] AS Pto, (Materiales.[Stock máximo]+Materiales.[Tam#lote fijo]) AS ML, 
+Materiales.CaP, Materiales.[Texto breve de material] AS Texto, Materiales.[NºMaterial antiguo] AS cod, 
+Materiales.[Ce#] AS C, Materiales.Almacén AS Alm, Materiales.PrMedioVar/Materiales.[Cantidad base] AS Prec, 
+Materiales.[Cantidad base], Materiales.[Jquía#productos] AS Jqa, Materiales.[Grupo art#] AS Grup, 
+Materiales.[Grupo de artículos], Materiales.GCp, Disp.TotStock, Disp.TotPed, Disp.TotZor, 
+Disp.TotRes, Disp.TotZub, Disp.Disp, DeImportacion.Import AS I, ABC.ABC, Materiales.Creado, 
+Materiales.[Indicador: Parte crítica] AS CRI, Ult3_.U3, Ult3_.M3, Ult12_.U12, Ult12_.M12, 
+iif(isnull(Years_.[2019]) or Years_.[2019]=0,"",Round(Years_.[2019],1) & "/" & Years_.M2019) AS 2019, 
+iif(isnull(Years_.[2018]) or Years_.[2018]=0,"",Round(Years_.[2018],1) & "/" & Years_.M2018) AS 2018, 
+iif(isnull(Years_.[2017]) or Years_.[2017]=0,"",Round(Years_.[2017],1) & "/" & Years_.M2017) AS 2017, 
+iif(isnull(Years_.[2016]) or Years_.[2016]=0,"",Round(Years_.[2016],1) & "/" & Years_.M2016) AS 2016, 
+R1819.REC1819 AS R1819, R1819.M1819 AS M1819, Z17.ZAF17 AS Z17, Z17.MZ17 AS M17, Z18.ZA18 AS Z18, Z18.MZ18 AS M18, Z19_.Z19_ AS Z19, Z19_.MZ19_ AS M19, Materiales.[Val#redondeo], iif(isnull(JohnDeere.JD),"","Si") AS JD, CMarco.Contrato, CMarco.PosCon, CMarco.GrpCon, CMarco.CenCon, CMarco.AlmCon, CMarco.FechFiCon, CMarco.CantPenCon
+
+FROM (((((((((((Materiales 
+LEFT JOIN Disp ON Materiales.Material = Disp.Material) 
+LEFT JOIN DeImportacion ON Materiales.Material = DeImportacion.Material) 
+LEFT JOIN CMarco ON Materiales.Material = CMarco.Material) 
+LEFT JOIN Ult12_ ON Materiales.Material = Ult12_.Material) 
+LEFT JOIN Ult3_ ON Materiales.Material = Ult3_.Material) 
+LEFT JOIN Years_ ON Materiales.Material = Years_.Material) 
+LEFT JOIN Z19_ ON Materiales.Material = Z19_.Material) 
+LEFT JOIN Z18 ON Materiales.Material = Z18.Material) 
+LEFT JOIN Z17 ON Materiales.Material = Z17.Material) 
+LEFT JOIN R1819 ON Materiales.Material = R1819.Material) 
+LEFT JOIN JohnDeere ON Materiales.Material = JohnDeere.JD) 
+LEFT JOIN ABC ON Materiales.Material = ABC.Material;
