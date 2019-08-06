@@ -1,0 +1,5 @@
+TRANSFORM Sum(YearMonth.Salida) AS SumaDeSalida
+SELECT YearMonth.Material, Sum(YearMonth.Salida) AS [Total de Salida]
+FROM YearMonth
+GROUP BY YearMonth.Material
+PIVOT YearMonth.Mes;
