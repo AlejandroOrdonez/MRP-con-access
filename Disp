@@ -1,0 +1,14 @@
+SELECT TotalStock.Material, TotalStock.TotStock, TotalPedidos.TotPed, TotalZor.TotZor, TotalReservas.TotRes, TotalZub.TotZub, Bloq.Bloq, 
+Round(IIf(IsNull(TotalStock.TotStock),0,TotalStock.TotStock)+
+IIf(IsNull(TotalPedidos.TotPed),0,TotalPedidos.TotPed)+
+IIf(IsNull(TotalZor.TotZor),0,TotalZor.TotZor)-
+IIf(IsNull(TotalReservas.TotRes),0,TotalReservas.TotRes)-
+IIf(IsNull(TotalZub.TotZub),0,TotalZub.TotZub)+
+IIf(IsNull(Bloq.Bloq),0,Bloq.Bloq),1) AS Disp
+
+FROM ((((TotalStock 
+LEFT JOIN TotalPedidos ON TotalStock.Material=TotalPedidos.Material) 
+LEFT JOIN TotalZor ON TotalStock.Material=TotalZor.Material) 
+LEFT JOIN TotalReservas ON TotalStock.Material=TotalReservas.Material) 
+LEFT JOIN TotalZub ON TotalStock.Material=TotalZub.Material) 
+LEFT JOIN Bloq ON TotalStock.Material=Bloq.Material;
