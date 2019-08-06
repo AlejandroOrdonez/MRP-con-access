@@ -1,0 +1,3 @@
+SELECT Pedidos2.Material, sum(Pedidos2.Pendiente) AS TotPed
+FROM Pedidos2
+GROUP BY Pedidos2.Material;
