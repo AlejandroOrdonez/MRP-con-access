@@ -1,3 +1,0 @@
-SELECT ZOR.Material, Sum(ZOR.[Ctd#solicitada]) AS TotZor
-FROM ZOR
-GROUP BY ZOR.Material;
