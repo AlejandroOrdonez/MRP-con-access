@@ -1,0 +1,753 @@
+Public Function auto()
+    Dim resp As Integer
+    resp = MsgBox("¿Actualizar?", vbOKCancel, ultAct())
+    If resp = 1 Then
+        Call Actualizar
+    End If
+End Function
+
+Sub borrar301()
+    'Dim db As Database
+    Dim tempRN As Long, tempRT As Long
+    tempRN = 1
+    Application.SysCmd acSysCmdInitMeter, "TOTAL RECORDS " & tempRT & ", PROCESSING: " & tempRN, tempRT
+    
+    'Do While tempRN < 100
+      'Do whatever it is you need to do
+    
+      tempRN = tempRN + 1
+      Application.SysCmd acSysCmdRemoveMeter
+      Application.SysCmd acSysCmdInitMeter, "TOTAL RECORD COUNT " & tempRT & ", PROCESSING: " & tempRN, tempRT
+      Application.SysCmd acSysCmdUpdateMeter, tempRN
+    'Loop
+    
+    Application.SysCmd acSysCmdRemoveMeter
+ 
+    'DELETE *
+    'FROM ConsumosMicro
+    'WHERE ConsumosMicro.Mov IN ('301','302') AND ConsumosMicro.Material not IN (SELECT Materiales.Material
+    'FROM Materiales where Materiales.Flia='14');
+    'db.Close
+    'Set db = Nothing
+End Sub
+Public Function ultAct()
+    Dim db As DAO.Database
+    Dim rs As DAO.Recordset
+    Dim ultFecha As String
+    Set db = CurrentDb
+    Set rs = db.OpenRecordset("UltimaActualizacion", dbOpenDynaset)
+    ultFecha = rs!fecha
+    rs.Close
+    db.Close
+    Set rs = Nothing
+    Set db = Nothing
+    ultAct = ultFecha
+End Function
+
+Sub Actualizar()
+    Dim dbs As Database, rst As Recordset
+    Dim cantMeses30 As Integer, cantMeses60 As Integer, cantMeses45 As Integer, cantMeses90 As Integer, cantMeses180 As Integer, cantMeses120 As Integer
+    Dim cantMesesA As Integer, cantMesesB As Integer, cantMesesC As Integer, cantMesesImp As Integer
+    Dim nuevaConsulta As String
+    Set dbs = CurrentDb 'OpenDatabase("nombreDB.mdb")
+    
+    Call SysCmd(acSysCmdInitMeter, "Actualizando...", 16)
+    
+    Call SysCmd(acSysCmdUpdateMeter, 1)
+    borrarCrear ("AEW_") '1
+    Call SysCmd(acSysCmdUpdateMeter, 2)
+    borrarCrear ("PtoPed_") '2
+    Call SysCmd(acSysCmdUpdateMeter, 3)
+    borrarCrear ("TamLoteFijo_") '3
+    Call SysCmd(acSysCmdUpdateMeter, 4)
+    borrarCrear ("years_") '4
+    Call SysCmd(acSysCmdUpdateMeter, 5)
+    borrarCrear ("Ult12_") '5
+    borrarCrear ("Ult3_") '5
+    Call SysCmd(acSysCmdUpdateMeter, 6)
+    nuevaConsulta = Formador(0.454) '6
+    Call SysCmd(acSysCmdUpdateMeter, 7)
+    dbs.Execute " INSERT INTO AEW_ " & nuevaConsulta '7
+    Debug.Print "La tabla AEW_ se actualizó"
+    
+    
+
+    cantMeses30 = 1 * 4
+    cantMeses45 = 6 'semanas
+    cantMeses60 = 2 * 4
+    cantMeses90 = 3 * 4
+    cantMeses120 = 4 * 4
+    
+    cantMeses180 = 6 * 4
+    Call SysCmd(acSysCmdUpdateMeter, 8)
+    nuevaConsulta = "SELECT AEW_.Material," & sumarSemanas(cantMeses30, "AEW_") & " as Dias30, " & _
+                                            sumarSemanas(cantMeses45, "AEW_") & " as Dias45, " & _
+                                             sumarSemanas(cantMeses60, "AEW_") & " as Dias60, " & _
+                                             sumarSemanas(cantMeses90, "AEW_") & " as Dias90, " & _
+                                             sumarSemanas(cantMeses120, "AEW_") & " as Dias120, " & _
+                                             sumarSemanas(cantMeses180, "AEW_") & " as Dias180 FROM AEW_;" '8
+    Call SysCmd(acSysCmdUpdateMeter, 9)
+    dbs.Execute " INSERT INTO PtoPed_ " & nuevaConsulta '9
+    Debug.Print "La tabla PtoPed se actualizó"
+    
+    cantMesesA = 14 'semanas
+    cantMesesB = 5 * 4
+    cantMesesC = 8 * 4
+    cantMesesImp = 12 * 4
+    Call SysCmd(acSysCmdUpdateMeter, 10)
+    nuevaConsulta = "SELECT AEW_.Material," & sumarSemanas(cantMesesA, "AEW_") & " as SiEsA, " & _
+                                             sumarSemanas(cantMesesB, "AEW_") & " as SiEsB, " & _
+                                             sumarSemanas(cantMesesC, "AEW_") & " as SiEsC, " & _
+                                             sumarSemanas(cantMesesImp, "AEW_") & " as SiEsImp FROM AEW_;" '10
+    Call SysCmd(acSysCmdUpdateMeter, 11)
+    dbs.Execute " INSERT INTO TamLoteFijo_ " & nuevaConsulta '11
+    Debug.Print "La tabla TamLoteFijo se actualizó"
+    
+    'Revisar cantidad de campos de la tabla years_ cuando llegue 2019
+    Call SysCmd(acSysCmdUpdateMeter, 12)
+    nuevaConsulta = byYear() '12
+    Call SysCmd(acSysCmdUpdateMeter, 13)
+    dbs.Execute " INSERT INTO years_ " & nuevaConsulta '13
+    Debug.Print "La tabla years_ se actualizó"
+    Call SysCmd(acSysCmdUpdateMeter, 14)
+    nuevaConsulta = Ult12() '14
+    Call SysCmd(acSysCmdUpdateMeter, 15)
+    dbs.Execute " INSERT INTO Ult12_ " & nuevaConsulta '15
+    Debug.Print "La tabla Ult12_ se actualizó"
+    
+    nuevaConsulta = Ult3() '14
+    Call SysCmd(acSysCmdUpdateMeter, 15)
+    dbs.Execute " INSERT INTO Ult3_ " & nuevaConsulta '15
+    Debug.Print "La tabla Ult3_ se actualizó"
+    
+    '16
+    Call SysCmd(acSysCmdUpdateMeter, 16)
+    Call ConsumosDesde(#5/21/2019#, "Z19_")   'mes/dia/año
+   
+    dbs.Close
+    
+    Call SysCmd(acSysCmdRemoveMeter)
+    
+    MsgBox "Las tablas se actualizaron"
+End Sub
+Sub borrarCrear(tabla As String)
+    Dim dbs As DAO.Database
+    Dim registros As DAO.Recordset
+    Dim strSQL As String, campo As String
+    Dim tb As DAO.TableDef, tbExists As Integer
+    
+    Set dbs = CurrentDb
+    
+    On Error Resume Next
+    Set tb = dbs.TableDefs(tabla)
+    tbExists = Err.Number = 0
+    If tbExists Then
+        DoCmd.DeleteObject acTable, tabla
+        Debug.Print "Se borro la tabla " & tabla
+    End If
+        
+    If tabla = "AEW_" Then
+        dbs.Execute "CREATE TABLE " & tabla & "(Material CHAR" _
+        & ",s011 double, s012 double, s013 double, s014 double" _
+        & ",s021 double, s022 double, s023 double, s024 double" _
+        & ",s031 double, s032 double, s033 double, s034 double" _
+        & ",s041 double, s042 double, s043 double, s044 double" _
+        & ",s051 double, s052 double, s053 double, s054 double" _
+        & ",s061 double, s062 double, s063 double, s064 double" _
+        & ",s071 double, s072 double, s073 double, s074 double" _
+        & ",s081 double, s082 double, s083 double, s084 double" _
+        & ",s091 double, s092 double, s093 double, s094 double" _
+        & ",s101 double, s102 double, s103 double, s104 double" _
+        & ",s111 double, s112 double, s113 double, s114 double" _
+        & ",s121 double, s122 double, s123 double, s124 double);"
+    End If
+    If tabla = "PtoPed_" Then
+        dbs.Execute "create table " & tabla & " (Material CHAR, Dias30 double, Dias45 double, Dias60 double,Dias90 double, Dias120 double, Dias180 double);"
+    End If
+    If tabla = "TamLoteFijo_" Then
+        dbs.Execute "create table " & tabla & " (Material CHAR, SiEsA double, SiEsB double, SiEsC double, SiEsImp double);"
+    End If
+    If tabla = "Ult12_" Then
+        dbs.Execute "create table " & tabla & " (Material CHAR, U12 double, M12 integer);"
+    End If
+    If tabla = "Ult3_" Then
+        dbs.Execute "create table " & tabla & " (Material CHAR, U3 double, M3 integer);"
+    End If
+    
+    If tabla = "Years_" Then
+        'trae los años de las tabla ConsumoMicro
+        strSQL = "SELECT year(ConsumosMicro.Fecha) as y FROM ConsumosMicro group by year(ConsumosMicro.Fecha);"
+        Set registros = dbs.OpenRecordset(strSQL, dbOpenSnapshot)
+        Do Until registros.EOF ' Mientras queden registros.
+            campo = campo & registros!y & " double, M" & registros!y & " integer,"
+            registros.MoveNext
+        Loop
+        campo = Left(campo, Len(campo) - 1)
+        dbs.Execute "create table " & tabla & " (Material CHAR," & campo & ");"
+    End If
+    
+    Debug.Print "Se creó la tabla " & tabla
+    
+    Set registros = Nothing
+    Set dbs = Nothing
+End Sub
+Public Function Formador(palfa As Double)
+    Dim db As DAO.Database
+    Dim qdf As DAO.QueryDef
+    Dim fld As DAO.Field
+    Dim colCampos As Collection
+    Dim semana As String, mult As String, weeks As String, consulta As String
+    Dim i As Integer, j1 As Integer, alfa As Double, j2 As Integer, s As Integer
+    Dim sumas(48) As Integer
+    Dim semanas(48, 3) As String
+    
+    Dim week As Integer
+    
+    Set colCampos = New Collection
+    Set db = CurrentDb
+    Set qdf = db.QueryDefs("CMXW")
+    'Recorre por todos los campo para guardarlo en una colección.
+    For Each fld In qdf.Fields
+        colCampos.Add fld.Name
+    Next
+    
+    
+    alfa = palfa
+    week = 11
+    
+    For i = 1 To 48
+        sumas(i) = 1
+        semanas(i, 3) = Str(i)
+        If i <= 36 Then
+            semanas(i, 1) = "0" & Trim(Str(week))
+        Else
+            semanas(i, 1) = Trim(Str(week))
+        End If
+        If Right(Str(week), 1) = "4" Then
+            week = week + 7
+        Else
+            week = week + 1
+        End If
+    Next i
+    
+
+    
+    For i = colCampos.Count To 3 Step -1
+        semana = Right(colCampos.Item(i), 3)
+        If semana = "011" Then 'Semana 1
+            s = 1
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "012" Then 'Semana 2
+            s = 2
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "013" Then 'Semana 3
+            s = 3
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "014" Then 'Semana 4
+            s = 4
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        
+        If semana = "021" Then 'Semana 5
+            s = 5
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "022" Then 'Semana 6
+            s = 6
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "023" Then 'Semana 7
+            s = 7
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "024" Then 'Semana 8
+            s = 8
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "031" Then 'Semana 9
+            s = 9
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "032" Then 'Semana 10
+            s = 10
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "033" Then 'Semana 11
+            s = 11
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "034" Then 'Semana 12
+            s = 12
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "041" Then 'Semana 13
+            s = 13
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "042" Then 'Semana 14
+            s = 14
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "043" Then 'Semana 15
+            s = 15
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "044" Then 'Semana 16
+            s = 16
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "051" Then 'Semana 17
+            s = 17
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "052" Then 'Semana 18
+            s = 18
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "053" Then 'Semana 19
+            s = 19
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "054" Then 'Semana 20
+            s = 20
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "061" Then 'Semana 21
+            s = 21
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "062" Then 'Semana 22
+            s = 22
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "063" Then 'Semana 23
+            s = 23
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "064" Then 'Semana 24
+            s = 24
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "071" Then 'Semana 25
+            s = 25
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "072" Then 'Semana 26
+            s = 26
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "073" Then 'Semana 27
+            s = 27
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "074" Then 'Semana 28
+            s = 28
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "081" Then 'Semana 29
+            s = 29
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "082" Then 'Semana 30
+            s = 30
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "083" Then 'Semana 31
+            s = 31
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "084" Then 'Semana 32
+            s = 32
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "091" Then 'Semana 33
+            s = 33
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "092" Then 'Semana 34
+            s = 34
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "093" Then 'Semana 35
+            s = 35
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "094" Then 'Semana 36
+            s = 36
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "101" Then 'Semana 37
+            s = 37
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "102" Then 'Semana 38
+            s = 38
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "103" Then 'Semana 39
+            s = 39
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "104" Then 'Semana 40
+            s = 40
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "111" Then 'Semana 41
+            s = 41
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "112" Then 'Semana 42
+            s = 42
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "113" Then 'Semana 43
+            s = 43
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "114" Then 'Semana 44
+            s = 44
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+        If semana = "121" Then 'Semana 45
+            s = 45
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "122" Then 'Semana 46
+            s = 46
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "123" Then 'Semana 47
+            s = 47
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+        If semana = "124" Then 'Semana 48
+            s = 48
+            mult = Str(Round((1 - alfa) ^ sumas(s), 3))
+            semanas(s, 2) = semanas(s, 2) & "IIf(isNull(CMXW.[" & colCampos.Item(i) & "]),0,CMXW.[" & colCampos.Item(i) & "])* " & mult & "+"
+            sumas(s) = sumas(s) + 1
+        End If
+
+
+    Next i
+    weeks = ""
+    For i = 1 To 48
+        If i = 48 Then
+            semanas(i, 2) = "(" & semanas(i, 2) & "0) as s" & semanas(i, 1)
+        Else
+            semanas(i, 2) = "(" & semanas(i, 2) & "0) as s" & semanas(i, 1) & ","
+        End If
+        weeks = weeks & semanas(i, 2)
+    Next i
+    
+    Set colCampos = Nothing
+    Set qdf = Nothing
+    Set db = Nothing
+    Formador = "SELECT CMXW.Material," & weeks & " FROM CMXW;"
+End Function
+
+Public Function sumarSemanas(cantMeses As Variant, tablaAlisado As String)
+    Dim mes As String, week As String, dia As String, cadena As String
+    Dim i As Integer
+   
+    mes = Month(Date)
+    dia = Day(Date)
+    cadena = ""
+    
+    Select Case dia
+        Case 1, 2, 3, 4, 5, 6, 7
+            week = 1
+        Case 8, 9, 10, 11, 12, 13, 14
+            week = 2
+        Case 15, 16, 17, 18, 19, 20, 21
+            week = 3
+        Case 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+            week = 4
+    End Select
+
+    For i = 1 To cantMeses
+        If week = 4 Then
+            If mes = 12 Then
+                mes = 1
+            Else
+                mes = mes + 1
+            End If
+            week = 0
+        End If
+        week = week + 1
+        If mes < 10 Then
+            cadena = cadena & tablaAlisado & ".S" & "0" & mes & week & "+"
+        Else
+            cadena = cadena & tablaAlisado & ".S" & mes & week & "+"
+        End If
+        
+        If mes = 12 And week = 4 Then
+            mes = 1
+            week = 0
+        End If
+    Next i
+    sumarSemanas = "(" & cadena & "0)"
+End Function
+
+Public Function byYear()
+    Dim db As DAO.Database
+    Dim qdf As DAO.QueryDef
+    Dim fld As DAO.Field
+    Dim colCampos As Collection
+    Dim bandera As Boolean
+    Dim year As String, yy As String, mm As String
+    Set colCampos = New Collection
+    Set db = CurrentDb
+    Set qdf = db.QueryDefs("ConMicroXMes")
+    bandera = True
+    yy = "SELECT ConMicroXMes.Material,"
+    mm = ""
+    For Each fld In qdf.Fields
+        If Left(fld.Name, 1) = 2 Then
+            If bandera Then
+                year = Left(fld.Name, 4)
+                bandera = False
+            End If
+            If Left(fld.Name, 4) = year Then
+                yy = yy & "IIf(isNull(ConMicroXMes.[" & fld.Name & "]),0,ConMicroXMes.[" & fld.Name & "])+"
+                mm = mm & "iif(isNull(ConMicroXMes.[" & fld.Name & "]),0,1)+"
+            Else
+                yy = yy & "0 as " & year & ","
+                mm = mm & "0 as M" & year & ","
+                year = Left(fld.Name, 4)
+                yy = yy & "IIf(isNull(ConMicroXMes.[" & fld.Name & "]),0,ConMicroXMes.[" & fld.Name & "])+"
+                mm = mm & "iif(isNull(ConMicroXMes.[" & fld.Name & "]),0,1)+"
+            End If
+        End If
+    Next
+    mm = mm & "0 as M" & year
+    yy = yy & "0 as " & year & "," & mm & " FROM ConMicroXMes;"
+    byYear = yy
+    Set colCampos = Nothing
+    Set qdf = Nothing
+    Set db = Nothing
+End Function
+Public Function Ult3()
+    Dim dbs As DAO.Database
+    Dim rsSQL As DAO.Recordset
+    
+    Dim strSQL As String
+    Set dbs = CurrentDb
+    Dim FechaUlt As Date
+    'Traemos la ultima fecha de consumo de la tabla ConsumosMicro
+    strSQL = "SELECT TOP 1, ULTIMO.FECHA FROM (SELECT TOP 1, ConsumosMicro.FECHA FROM ConsumosMicro ORDER BY ConsumosMicro.Fecha DESC) AS ULTIMO;"
+    Set rsSQL = dbs.OpenRecordset(strSQL, dbOpenSnapshot)
+    FechaUlt = rsSQL!fecha
+    'Restamos a la ultima fecha 3 meses
+    FechaUlt = FechaUlt - 90
+    'Debug.Print Format(FechaUlt, "mm/dd/yyyy")
+    strSQL = "select ConsUlt3.Material, ConsUlt3.U3, MesUlt3.M3" & _
+    " from" & _
+    " (SELECT ConsumosMicro.Material, sum(ConsumosMicro.Salida) as U3 FROM ConsumosMicro WHERE (((ConsumosMicro.[Fecha])>" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    ")) group by ConsumosMicro.Material) as ConsUlt3" & _
+    " Left Join" & _
+    " (select C.Material, count(C.meses) as M3 from (SELECT ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha) as Meses,sum(ConsumosMicro.Salida)FROM ConsumosMicro where ConsumosMicro.Fecha >" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    " group by ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha)) C group by C.Material) as MesUlt3" & _
+    " ON MesUlt3.Material = ConsUlt3.Material;"
+    
+    Set rsSQL = Nothing
+    Set dbs = Nothing
+    Ult3 = strSQL
+End Function
+
+
+Public Function Ult12()
+    Dim dbs As DAO.Database
+    Dim rsSQL As DAO.Recordset
+    
+    Dim strSQL As String
+    Set dbs = CurrentDb
+    Dim FechaUlt As Date
+    'Traemos la ultima fecha de consumo de la tabla ConsumosMicro
+    strSQL = "SELECT TOP 1, ULTIMO.FECHA FROM (SELECT TOP 1, ConsumosMicro.FECHA FROM ConsumosMicro ORDER BY ConsumosMicro.Fecha DESC) AS ULTIMO;"
+    Set rsSQL = dbs.OpenRecordset(strSQL, dbOpenSnapshot)
+    FechaUlt = rsSQL!fecha
+    'Restamos a la ultima fecha un año
+    FechaUlt = FechaUlt - 365
+    'Debug.Print Format(FechaUlt, "mm/dd/yyyy")
+    strSQL = "select ConsUlt12.Material, ConsUlt12.U12, MesUlt12.M12" & _
+    " from" & _
+    " (SELECT ConsumosMicro.Material, sum(ConsumosMicro.Salida) as U12 FROM ConsumosMicro WHERE (((ConsumosMicro.[Fecha])>" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    ")) group by ConsumosMicro.Material) as ConsUlt12" & _
+    " Left Join" & _
+    " (select C.Material, count(C.meses) as M12 from (SELECT ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha) as Meses,sum(ConsumosMicro.Salida)FROM ConsumosMicro where ConsumosMicro.Fecha >" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    " group by ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha)) C group by C.Material) as MesUlt12" & _
+    " ON MesUlt12.Material = ConsUlt12.Material;"
+    
+    'Consulta completa-----------------------------------------------------------------------------
+    'select ConsUlt12.Material, ConsUlt12.U12, MesUlt12.M12
+    'from
+    'SELECT ConsumosMicro.Material, sum(ConsumosMicro.Salida) as U12 FROM ConsumosMicro WHERE (((ConsumosMicro.[Fecha])>#6/18/2017#)) group by ConsumosMicro.Material) as ConsUlt12
+    'Left Join
+    '(select C.Material, count(C.meses) as M12 from (SELECT ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha) as Meses,sum(ConsumosMicro.Salida)FROM ConsumosMicro where ConsumosMicro.Fecha > #29/06/2017# group by ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha)) C group by C.Material) as MesUlt12
+    'ON MesUlt12.Material = ConsUlt12.Material;
+    'Consulta completa-----------------------------------------------------------------------------
+    
+    Set rsSQL = Nothing
+    Set dbs = Nothing
+    'Consumos de los ultimos 12 meses
+    'SELECT ConsumosMicro.Material, sum(ConsumosMicro.Salida) as U12 FROM ConsumosMicro WHERE (((ConsumosMicro.[Fecha])>#6/18/2017#)) group by ConsumosMicro.Material;
+    'Meses de consumos de los ultimos 12 meses
+    'select C.Material, count(C.meses) as M12 from(SELECT ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha) as Meses,sum(ConsumosMicro.Salida)FROM ConsumosMicro where ConsumosMicro.Fecha > #29/06/2017# group by ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha)) C group by C.Material;
+    Ult12 = strSQL
+    'Debug.Print strSQL
+End Function
+
+Public Sub ConsumosDesde(FechaUlt As Date, tabla As String)
+    Dim dbs As DAO.Database
+    Dim rsSQL As DAO.Recordset
+    Dim strSQL As String
+    Dim CampoConsumos As String, CampoMeses As String, TablaConsumo As String, TablaMeses As String
+    Dim tb As DAO.TableDef, tbExists As Integer
+    Set dbs = CurrentDb
+  
+    TablaConsumo = tabla & "C"
+    TablaMeses = tabla & "M"
+    CampoConsumos = tabla
+    CampoMeses = "M" & tabla
+    
+    On Error Resume Next
+    Set tb = dbs.TableDefs(tabla)
+    tbExists = Err.Number = 0
+    If tbExists Then
+         dbs.Execute "DELETE * FROM " & tabla & ";"
+         Debug.Print "Se borro los registros de la tabla " & tabla
+    Else
+        dbs.Execute "create table " & tabla & " (Material CHAR, " & CampoConsumos & " double, " & CampoMeses & " DOUBLE);"
+        Debug.Print "Se creó la tabla " & tabla
+    End If
+    
+    'Debug.Print Format(FechaUlt, "mm/dd/yyyy")
+    strSQL = "select " & TablaConsumo & ".Material, " & TablaConsumo & "." & CampoConsumos & ", " & TablaMeses & "." & CampoMeses & _
+    " from" & _
+    " (SELECT ConsumosMicro.Material, sum(ConsumosMicro.Salida) as " & CampoConsumos & " FROM ConsumosMicro WHERE (((ConsumosMicro.[Fecha])>" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    ")) group by ConsumosMicro.Material) as " & TablaConsumo & _
+    " Left Join" & _
+    " (select C.Material, count(C.meses) as " & CampoMeses & " from (SELECT ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha) as Meses,sum(ConsumosMicro.Salida)FROM ConsumosMicro where ConsumosMicro.Fecha >" & _
+    "#" & Format(FechaUlt, "mm/dd/yyyy") & "#" & _
+    " group by ConsumosMicro.Material, YEAR(ConsumosMicro.Fecha),MONTH(ConsumosMicro.Fecha)) C group by C.Material) as " & TablaMeses & _
+    " ON " & TablaMeses & ".Material = " & TablaConsumo & ".Material;"
+    
+    dbs.Execute " INSERT INTO " & tabla & " " & strSQL
+    Debug.Print "La tabla " & tabla & " se actualizó"
+    Set rsSQL = Nothing
+    Set dbs = Nothing
+    
+End Sub
+
