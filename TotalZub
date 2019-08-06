@@ -1,0 +1,3 @@
+SELECT ZUB.Material, Sum(ZUB.[Cantidad pendiente]) AS TotZub
+FROM ZUB
+GROUP BY ZUB.Material, ZUB.[Centro suministrador];
